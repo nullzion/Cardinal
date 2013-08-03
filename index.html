@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Cardinal : A modular, Twisted-based Python IRC bot." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Cardinal</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/JohnMaguire2013/Cardinal">View on GitHub</a>
+
+          <h1 id="project_title">Cardinal</h1>
+          <h2 id="project_tagline">A modular, Twisted-based Python IRC bot.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/JohnMaguire2013/Cardinal/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/JohnMaguire2013/Cardinal/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="meet-cardinal" class="anchor" href="#meet-cardinal"><span class="octicon octicon-link"></span></a>Meet Cardinal.</h1>
+
+<p>Cardinal is your new best friend and personal assistant on IRC. A modular, Twisted-based Python IRC bot, Cardinal has plenty of common features (such as a calculator, fetching of page titles, etc.) as well as some more interesting ones (integration with Last.fm and YouTube searching.) If you're a developer, it's easy to create your own plugins in a matter of minutes.</p>
+
+<h2>
+<a name="instructions" class="anchor" href="#instructions"><span class="octicon octicon-link"></span></a>Instructions</h2>
+
+<p>Running Cardinal is as simple as typing <code>./cardinal.py</code>. Before running Cardinal, you should ensure that you have set your network settings in the <code>cardinal.py</code> file, or run <code>./cardinal.py -h</code> to use command line arguments to set the network and channels you would like Cardinal to connect to.</p>
+
+<p>Before running Cardinal, you should add your nick and vhost to the <code>plugins/admin/config.py</code> file in the format <code>nick@vhost</code> in order to take advantage of admin-only commands.</p>
+
+<h2>
+<a name="what-can-cardinal-do" class="anchor" href="#what-can-cardinal-do"><span class="octicon octicon-link"></span></a>What can Cardinal do?</h2>
+
+<p>Out of the box Cardinal can...</p>
+
+<ul>
+<li>Get the title of URLs in chat</li>
+<li>Search for YouTube videos</li>
+<li>Get the current weather for a given location</li>
+<li>Give users' now playing track on Last.fm and compare Last.fm users</li>
+<li>Send reminder messages</li>
+<li>Act as a calculator and unit/currency converter</li>
+<li>... and more!</li>
+</ul><p>But Cardinal is still in active development! Features are being added as quickly as they can be thought up and coded. It's also easy to write your own plugins for added functionality!</p>
+
+<h2>
+<a name="writing-plugins" class="anchor" href="#writing-plugins"><span class="octicon octicon-link"></span></a>Writing Plugins</h2>
+
+<p>Writing plugins is simple and quick! Simply create a folder in the <code>plugins/</code> directory, add an empty <code>__init__.py</code> file, and create a <code>plugin.py</code> file to contain your plugin.</p>
+
+<p>The <code>plugin.py</code> file must contain two things: a plugin object, and a function called <code>setup()</code> which creates and returns an instance of your plugin object. Optionally, <code>setup()</code> may accept one argument, which will be an instance of Cardinal. This is useful if you need access to the Cardinal internals during initialization of your plugin.</p>
+
+<p>Plugins objects should be comprised of two different types of functions (though neither are required to exist within a plugin.) The first type is private functions. These should be prefixed with an underscore, and should only be used for controlling the flow of logic within the plugin.</p>
+
+<p>The second type is command functions. These are the functions that Cardinal will route messages to, when it detects that a command has been called. They should accept four arguments. The first will be an instance of <code>CardinalBot</code>. The second is a <code>re.match()</code> result with the first group containing the sending user's nick, the second group containing the sending user's ident, and the third group containing the sending user's vhost. The third argument will be the channel the message was sent to (however, if the message was sent in a PM to Cardinal, this will contain the sending user's nick instead.) And finally, the fourth argument will be the full message received.</p>
+
+<p>An example of a function definition for a command is as follows:</p>
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cardinal</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+</pre></div>
+
+<p>Command functions should also contain a couple attributes. The first is a <code>commands</code> attribute, which should be a list of commands that Cardinal should respond to. For example, if Cardinal should respond to ".hello" or "Cardinal: hello", the list should contain the term <code>hello</code>. The second is the <code>help</code> attribute. This may be either a string, or a list of strings, to be sent when the included <code>help</code> command is called, with the command function as its parameter. If the attribute is a list of strings, each string will be sent separately. It is recommended that you use a list of two strings, with one briefly describing the command, and the second providing syntax. An example is below:</p>
+
+<div class="highlight"><pre><span class="n">hello</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[</span><span class="s">'hello'</span><span class="p">,</span> <span class="s">'hi'</span><span class="p">]</span>
+<span class="n">hello</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="p">[</span><span class="s">"Responds to the user with a greeting."</span><span class="p">,</span>
+              <span class="s">"Syntax: .hello [user to greet]"</span><span class="p">]</span>
+</pre></div>
+
+<p>Note: Square bracket notation should be used for optional parameters, while angled brackets should be used for required parameters.</p>
+
+<p>Lastly, they may contain a <code>regex</code> attribute, either as an alternative to a <code>command</code> attribute, or in addition to the <code>command</code> attribute. If the regex is detected in any received message, the command will be called.</p>
+
+<p>Additionally, a <code>close()</code> function may be defined, which will be called whenever the plugin is unloaded (this includes during reloads.)</p>
+
+<p>The default command symbol is <code>.</code>. To change this, you must modify the <code>command_regex</code> variable in <code>CardinalBot.py</code>.</p>
+
+<h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>If you have found a bug, feel free to submit a patch or simply open an issue on this repository and I will get to it as soon as possible.</p>
+
+<p>If you have written a plugin that you feel could be useful to other users of Cardinal, open an issue with a link to a Github repository with your plugin in it, and I will consider adding it to the project as a <a href="http://git-scm.com/book/en/Git-Tools-Submodules">Git submodule</a>.</p>
+
+<p>If you simply have a suggestion on how to improve the bot, feel free to open an issue with your suggestion as well!</p>
+
+<p>Cardinal is a public project, and open to anyone who is interested in contributing.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Cardinal maintained by <a href="https://github.com/JohnMaguire2013">JohnMaguire2013</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
