@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
     <!--[if lt IE 9]>
@@ -34,13 +34,6 @@
 <p>Cardinal is your new best friend and personal assistant on IRC. A modular, Twisted-based Python IRC bot, Cardinal has plenty of common features (such as a calculator, fetching of page titles, etc.) as well as some more interesting ones (integration with Last.fm and YouTube searching.) If you're a developer, it's easy to create your own plugins in a matter of minutes.</p>
 
 <h2>
-<a id="instructions" class="anchor" href="#instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instructions</h2>
-
-<p>Running Cardinal is as simple as typing <code>./cardinal.py</code>. Before running Cardinal, you should ensure that you have set your network settings in the <code>cardinal.py</code> file, or run <code>./cardinal.py -h</code> to use command line arguments to set the network and channels you would like Cardinal to connect to.</p>
-
-<p>Before running Cardinal, you should add your nick and vhost to the <code>plugins/admin/config.py</code> file in the format <code>nick@vhost</code> in order to take advantage of admin-only commands.</p>
-
-<h2>
 <a id="what-can-cardinal-do" class="anchor" href="#what-can-cardinal-do" aria-hidden="true"><span class="octicon octicon-link"></span></a>What can Cardinal do?</h2>
 
 <p>Out of the box Cardinal can...</p>
@@ -60,110 +53,47 @@
 <p>But Cardinal is still in active development! Features are being added as quickly as they can be thought up and coded. It's also easy to write your own plugins for even more functionality.</p>
 
 <h2>
+<a id="basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Usage</h2>
+
+<p>Running Cardinal is as simple as typing <code>./cardinal.py</code>. Before running Cardinal, you should ensure that you have set your network settings in the <code>config.json</code> file, or run <code>./cardinal.py -h</code> to use command line arguments to set the network and channels you would like Cardinal to connect to.</p>
+
+<p>Before running Cardinal, you should add your nick and vhost to the <code>plugins/admin/config.json</code> file in the format <code>nick@vhost</code> in order to take advantage of admin-only commands.</p>
+
+<h3>
+<a id="installation-note" class="anchor" href="#installation-note" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation Note</h3>
+
+<p>Make sure you have Python 2.7 installed, and run <code>pip install -r requirements.txt</code> to install any Python dependencies.</p>
+
+<p>It is recommended that you install and use Cardinal inside of a <a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">Python virtualenv</a>. You can do so by running the following command inside of your cloned repository.</p>
+
+<p><code>virtualenv -p /usr/bin/python2.7 . &amp;&amp; source bin/activate</code></p>
+
+<p>In the future, you will just have to remember to call <code>source bin/activate</code>.</p>
+
+<h2>
 <a id="writing-plugins" class="anchor" href="#writing-plugins" aria-hidden="true"><span class="octicon octicon-link"></span></a>Writing Plugins</h2>
 
-<p>Writing plugins is simple and quick! Simply create a folder in the <code>plugins/</code> directory, add an empty <code>__init__.py</code> file, and create a <code>plugin.py</code> file to contain your plugin.</p>
+<p>Cardinal plugins are designed to be simple to write while still providing tons of power. Here's a sample to show what a very simple plugin might look like:</p>
 
-<p>The <code>plugin.py</code> file must contain two things: a plugin object, and a function called <code>setup()</code> which creates and returns an instance of your plugin object. <code>setup()</code> may accept zero, one, or two arguments. If one argument is specified, the instance of <code>CardinalBot</code> will be passed into it, allowing you to pass it to the plugin instance. If two arguments are specified, the second argument will receive your plugin's config (this should be either <code>config.json</code> or <code>config.yaml</code> within the plugin directory.)</p>
+<div class="highlight highlight-python"><pre><span class="pl-k">class</span> <span class="pl-en">HelloWorldPlugin</span>(<span class="pl-e"><span class="pl-c1">object</span></span>):
+    <span class="pl-k">def</span> <span class="pl-en">hello</span>(<span class="pl-smi">self</span>, <span class="pl-smi">cardinal</span>, <span class="pl-smi">user</span>, <span class="pl-smi">channel</span>, <span class="pl-smi">msg</span>):
+        nick, ident, vhost <span class="pl-k">=</span> user.group(<span class="pl-c1">1</span>), user.group(<span class="pl-c1">2</span>), user.group(<span class="pl-c1">3</span>)
+        cardinal.sendMsg(channel, <span class="pl-s"><span class="pl-pds">"</span>Hello <span class="pl-c1">%s</span>!<span class="pl-pds">"</span></span> <span class="pl-k">%</span> nick)
+    hello.commands <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">'</span>hello<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>hi<span class="pl-pds">'</span></span>]
+    hello.help <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">"</span>Responds to the user with a greeting.<span class="pl-pds">"</span></span>,
+                  <span class="pl-s"><span class="pl-pds">"</span>Syntax: .hello [user to greet]<span class="pl-pds">"</span></span>]
 
-<p>Plugins objects should be comprised of two different types of methods (though neither are required to exist within a plugin.) Private methods, which should be prefixed with an underscore, which can be used only internally by your plugin, and public methods.</p>
+<span class="pl-k">def</span> <span class="pl-en">setup</span>():
+    <span class="pl-k">return</span> HelloWorldPlugin()</pre></div>
 
-<p>Public methods act as commands for Cardinal. These are the methods that Cardinal will route messages to when it detects that a command has been called. They should accept four arguments. The first argument passed in will be the instance of <code>CardinalBot</code>. The second is a <code>re.match()</code> return value, with the first group containing the sending user's nick, the second group containing the sending user's ident, and the third group containing the sending user's vhost. The third argument will be the channel the message was sent to (however, if the message was sent in a PM to Cardinal, this will contain the sending user's nick instead. This allows you to send messages to the correct location easily.) And finally, the fourth argument will be the full message received.</p>
-
-<p>An example of a function definition for a command is as follows:</p>
-
-<div class="highlight highlight-python"><pre><span class="pl-st">def</span> <span class="pl-en">hello</span>(<span class="pl-vpf">self</span>, <span class="pl-vpf">cardinal</span>, <span class="pl-vpf">user</span>, <span class="pl-vpf">channel</span>, <span class="pl-vpf">msg</span>):</pre></div>
-
-<p>Command methods should also contain a couple of attributes. The first is a <code>commands</code> attribute, which should be a list of commands that Cardinal should respond to. For example, if Cardinal should respond to ".hello" or "Cardinal: hello", the list should contain the term <code>hello</code>. The second is the <code>help</code> attribute. This may be either a string, or a list of strings, to be sent when the included <code>help</code> command is called, with the command function as its parameter. If the attribute is a list of strings, each string will be sent separately. It is recommended that you use a list of two strings, with one briefly describing the command, and the second providing syntax. An example is below:</p>
-
-<div class="highlight highlight-python"><pre>hello.commands <span class="pl-k">=</span> [<span class="pl-s1"><span class="pl-pds">'</span>hello<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>hi<span class="pl-pds">'</span></span>]
-hello.help <span class="pl-k">=</span> [<span class="pl-s1"><span class="pl-pds">"</span>Responds to the user with a greeting.<span class="pl-pds">"</span></span>,
-              <span class="pl-s1"><span class="pl-pds">"</span>Syntax: .hello [user to greet]<span class="pl-pds">"</span></span>]</pre></div>
-
-<p>Note: Square bracket notation should be used for optional parameters, while angled brackets (<code>&lt;&gt;</code>) should be used for required parameters.</p>
-
-<p>Lastly, they may contain a <code>regex</code> attribute, either as an alternative to a <code>command</code> attribute, or in addition to the <code>command</code> attribute. If the regex is detected in any received message, the command will be called.</p>
-
-<p>Additionally, a <code>close()</code> function may be defined at the module level, which will be called whenever the plugin is unloaded (this includes during reloads.)</p>
-
-<p>The default command symbol is <code>.</code>. To change this, you must modify the <code>command_regex</code> variable in <code>CardinalBot.py</code>.</p>
-
-<h2>
-<a id="methods-on-cardinalbot" class="anchor" href="#methods-on-cardinalbot" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods on CardinalBot</h2>
-
-<p><code>CardinalBot</code> contains a few methods that are useful for plugin developers.</p>
-
-<p>The first, and most important is <code>CardinalBot.sendMsg()</code>. This takes a parameter <code>channel</code> and a parameter <code>message</code> and sends the message to the specified channel. Additionally, a <code>length</code> parameter may be specified, denoting the length of the message, but this is completely unnecessary and will be taken care of for you if it's not passed in.</p>
-
-<p>The method <code>CardinalBot.disconnect()</code> allows you to tell Cardinal to disconnect from the network. It can accept a <code>message</code> parameter, which, if provided, will specificy a quit message.</p>
-
-<p>Finally, the <code>CardinalBot.config()</code> method allows you to access the config of a loaded plugin. This should not be called in the constructor of plugins, as <code>CardinalBot.config()</code> will not work until initial setup is fully completed. It can however be called within other methods of your plugins (such as when responding to a command), to view the config values of other loaded plugins. You can find an example in the <code>help</code> plugin, where we look for bot owners, specified in the <code>admin</code> plugin's config.</p>
-
-<h2>
-<a id="event-based-plugins" class="anchor" href="#event-based-plugins" aria-hidden="true"><span class="octicon octicon-link"></span></a>Event-based Plugins</h2>
-
-<p>Cardinal now has supports for events, as of version 2.0. Built-in are the core IRC events:</p>
-
-<ul>
-<li>
-<code>irc.invite</code> - 2 arguments (inviter, channel)</li>
-<li>
-<code>irc.privmsg</code> - 3 arguments (sender, channel, message)</li>
-<li>
-<code>irc.notice</code> - 3 arguments (sender, channel, message)</li>
-<li>
-<code>irc.nick</code> - 2 arguments (changer, new nick)</li>
-<li>
-<code>irc.mode</code> - 3 arguments(setter, channel, mode)</li>
-<li>
-<code>irc.join</code> - 2 arguments (joiner, channel)</li>
-<li>
-<code>irc.part</code> - 3 arguments (leaver, channel, message)</li>
-<li>
-<code>irc.kick</code> - 4 arguments (kicker, channel, kicked nick, message)</li>
-<li>
-<code>irc.quit</code> - 2 arguments (quitter, message)</li>
-</ul>
-
-<p>Except for "new nick" for the <code>irc.nick</code> event and "kicked nick" for the <code>irc.kick</code> event, the user arguments are the same as for commands: Three groups returned by <code>re.match</code> that contain a user's nick, user identity, and hostname. Also, similarly to commands, event handlers (callbacks triggered when an event fires) all must take an extra first parameter, that is the instance of <code>CardinalBot</code>. An event handler for <code>irc.invite</code> looks like this:</p>
-
-<div class="highlight highlight-python"><pre><span class="pl-st">class</span> <span class="pl-en">InviteJoinPlugin</span>(<span class="pl-e"><span class="pl-s3">object</span></span>):
-    <span class="pl-st">def</span> <span class="pl-en">join_channel</span>(<span class="pl-vpf">self</span>, <span class="pl-vpf">cardinal</span>, <span class="pl-vpf">user</span>, <span class="pl-vpf">channel</span>):
-        <span class="pl-s1"><span class="pl-pds">"""</span>Callback for irc.invite that joins a channel<span class="pl-pds">"""</span></span>
-        cardinal.join(channel)</pre></div>
-
-<p>This would cause Cardinal to join the channel that she was invited to. You should register handlers for events in the <code>__init__</code> method of your plugin, and remove handlers you registered in the <code>close</code> method of your plugin (called when your plugin is closed by Cardinal.) When registering handlers, you will receive a "callback ID" back from Cardinal. You must hold onto this in order to remove the callback later. For example:</p>
-
-<div class="highlight highlight-python"><pre><span class="pl-st">class</span> <span class="pl-en">InviteJoinPlugin</span>(<span class="pl-e"><span class="pl-s3">object</span></span>):
-    <span class="pl-st">def</span> <span class="pl-en"><span class="pl-s3">__init__</span></span>(<span class="pl-vpf">self</span>, <span class="pl-vpf">cardinal</span>):
-        <span class="pl-s1"><span class="pl-pds">"""</span>Register our callback and save the callback ID<span class="pl-pds">"""</span></span>
-        <span class="pl-v">self</span>.callback_id <span class="pl-k">=</span> cardinal.event_manager.register_callback(<span class="pl-s1"><span class="pl-pds">"</span>irc.invite<span class="pl-pds">"</span></span>, <span class="pl-v">self</span>.join_channel)
-
-    <span class="pl-st">def</span> <span class="pl-en">close</span>(<span class="pl-vpf">self</span>, <span class="pl-vpf">cardinal</span>):
-        <span class="pl-s1"><span class="pl-pds">"""</span>When the plugin is closed, removes our callback<span class="pl-pds">"""</span></span>
-        cardinal.event_manager.remove_callback(<span class="pl-s1"><span class="pl-pds">"</span>irc.invite<span class="pl-pds">"</span></span>, <span class="pl-v">self</span>.callback_id)</pre></div>
-
-<p>Registering events is easy too. Simply call <code>EventManager.register()</code> (accessible from within an event handler or command method as <code>cardinal.event_manager.register()</code> with the name of your event, and the number of parameters that will be passed in when you fire the event. Preferably, your event should be prefixed with the name of your plugin, followed by a period. For example <code>urls.match</code> for a <code>urls</code> plugin that found a matching URL. For example:</p>
-
-<div class="highlight highlight-python"><pre><span class="pl-st">class</span> <span class="pl-en">URLsPlugin</span>(<span class="pl-e"><span class="pl-s3">object</span></span>):
-    <span class="pl-st">def</span> <span class="pl-en"><span class="pl-s3">__init__</span></span>(<span class="pl-vpf">self</span>, <span class="pl-vpf">cardinal</span>):
-        <span class="pl-s1"><span class="pl-pds">"""</span>Register our event<span class="pl-pds">"""</span></span>
-        cardinal.event_manager.register(<span class="pl-s1"><span class="pl-pds">'</span>urls.match<span class="pl-pds">'</span></span>, <span class="pl-c1">1</span>)
-
-    <span class="pl-st">def</span> <span class="pl-en">close</span>(<span class="pl-vpf">self</span>, <span class="pl-vpf">cardinal</span>):
-        <span class="pl-s1"><span class="pl-pds">"</span>Remove the event<span class="pl-pds">"</span><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
-        cardinal.event_manager.remove(<span class="pl-s1"><span class="pl-pds">'</span>urls.match<span class="pl-pds">'</span></span>)</pre></div>
-
-<p>It is important to remove the event in the <code>close</code> method of your plugin. If you don't, and your plugin is reloaded, you will not be able to re-register the event. Once you have your event registered in your plugin. You can call <code>cardinal.event_manager.fire</code>, with the first parameter as the name of your event, and the rest of the parameters the ones you want to pass to the event handlers. You may check the boolean return value of <code>cardinal.plugins.EventManager.fire()</code> in order to find out whether an event handler did something with your event.</p>
-
-<p>If your event handler is triggered by an event, but for some reason you would like to "refuse" the event (say you are looking for a specific type of URL, and the URL that was provided did not match), you can throw a <code>cardinal.exceptions.EventRejectedMessage</code> exception, and the return value of <code>cardinal.plugins.EventManager.fire()</code> will not be set to <code>True</code>.</p>
+<p>While it's not difficult to write plugins for Cardinal, lots of optional functionality is provided, and thus this section is too large to include in the README. Please <a href="https://github.com/JohnMaguire/Cardinal/wiki/Writing-Plugins">visit the wiki</a> to learn about writing plugins.</p>
 
 <h2>
 <a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributing</h2>
 
 <p>If you have found a bug, feel free to submit a patch or simply open an issue on this repository and I will get to it as soon as possible. Be sure to add your name to the CONTRIBUTORS file in a separate commit on the same branch as your modification so that I can give credit where credit is due.</p>
 
-<p>Cardinal is a public, open-source project, and anyone may contribute.</p>
+<p>Cardinal is a public, open-source project, licensed under the MIT License. Anyone may contribute.</p>
         </section>
 
         <aside id="sidebar">
