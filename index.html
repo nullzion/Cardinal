@@ -31,57 +31,72 @@
           <h1>
 <a id="meet-cardinal" class="anchor" href="#meet-cardinal" aria-hidden="true"><span class="octicon octicon-link"></span></a>Meet Cardinal.</h1>
 
-<p>Cardinal is your new best friend and personal assistant on IRC. A modular, Twisted-based Python IRC bot, Cardinal has plenty of common features (such as a calculator, fetching of page titles, etc.) as well as some more interesting ones (integration with Last.fm and YouTube searching.) If you're a developer, it's easy to create your own plugins in a matter of minutes.</p>
+<p>Another IRC bot, you say? Just what the world needed! Cardinal is a modular, Twisted-based IRC bot written in Python. Batteries included!</p>
+
+<p>Cardinal's goal is to make plugin development easy and powerful, and to fill in the gaps where other Python IRC bots fall short.</p>
+
+<p>You can join us at #cardinal on the <a href="http://www.darkscience.net/">DarkScience</a> IRC network (irc.darkscience.net/+6697 — SSL required)</p>
 
 <h2>
 <a id="what-can-cardinal-do" class="anchor" href="#what-can-cardinal-do" aria-hidden="true"><span class="octicon octicon-link"></span></a>What can Cardinal do?</h2>
 
-<p>Out of the box Cardinal can...</p>
+<p>Anything, as long as you're creative enough! But Cardinal does come with some plugins to get you started...</p>
 
 <ul>
-<li>Grab the page titles for links</li>
-<li>Search for YouTube videos and link them in chat</li>
-<li>Tell you the weather</li>
-<li>Show who's listening to what with Last.fm integration</li>
-<li>Message you with a time-based reminder</li>
-<li>Act as a calculator and unit/currency converter</li>
-<li>Save "notes" -- effectively turns Cardinal into an info bot</li>
-<li>Grab definitions from Urban Dictionary</li>
+<li>Fetching URL information (custom parsers for Github, YouTube, and Wikipedia)</li>
+<li>On-the-fly Googling</li>
+<li>Weather lookup</li>
+<li>Last.fm integration</li>
+<li>Reminders</li>
+<li>Calculator &amp; unit conversion</li>
+<li>Notes (use Cardinal as an info bot)</li>
+<li>Urban Dictionary definitions</li>
+<li>Admin control (hot load plugins, inspect running code, etc.)</li>
 <li>... and more!</li>
 </ul>
 
-<p>But Cardinal is still in active development! Features are being added as quickly as they can be thought up and coded. It's also easy to write your own plugins for even more functionality.</p>
+<p>Plus, Cardinal is still in active development! Features are being added as quickly as they can be thought up and coded. But Cardinal's killer feature is the ease of writing new plugins.</p>
 
 <h2>
 <a id="basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Usage</h2>
 
-<p>Running Cardinal is as simple as typing <code>./cardinal.py</code>. Before running Cardinal, you should ensure that you have set your network settings in the <code>config.json</code> file, or run <code>./cardinal.py -h</code> to use command line arguments to set the network and channels you would like Cardinal to connect to.</p>
-
-<p>Before running Cardinal, you should add your nick and vhost to the <code>plugins/admin/config.json</code> file in the format <code>nick@vhost</code> in order to take advantage of admin-only commands.</p>
-
 <h3>
-<a id="installation-note" class="anchor" href="#installation-note" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation Note</h3>
-
-<p>Make sure you have Python 2.7 installed, and run <code>pip install -r requirements.txt</code> to install any Python dependencies.</p>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
 
 <p>It is recommended that you install and use Cardinal inside of a <a href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">Python virtualenv</a>. You can do so by running the following command inside of your cloned repository.</p>
 
 <p><code>virtualenv -p /usr/bin/python2.7 . &amp;&amp; source bin/activate</code></p>
 
-<p>In the future, you will just have to remember to call <code>source bin/activate</code>.</p>
+<p>Make sure you have Python 2.7 installed, and run <code>pip install -r requirements.txt</code> to install all Python dependencies.</p>
+
+<p><strong>Note:</strong> Make sure you have <code>libssl-dev</code> and <code>libffi-dev</code> installed on Debian (or the equivelant package for your distro) or installation of some dependencies may not work correctly.</p>
+
+<h3>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
+
+<p>Rename the <code>config.json.example</code> file to <code>config.json</code> and modify it to suit your needs, or view Cardinal's command line options with <code>./cardinal -h</code>.</p>
+
+<p>You should also add your nick and vhost to the <code>plugins/admin/config.json</code> file in the format <code>nick@vhost</code> in order to take advantage of admin-only commands.</p>
+
+<h3>
+<a id="running" class="anchor" href="#running" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running</h3>
+
+<p>Running Cardinal is as simple as typing <code>./cardinal.py</code>.</p>
 
 <h2>
 <a id="writing-plugins" class="anchor" href="#writing-plugins" aria-hidden="true"><span class="octicon octicon-link"></span></a>Writing Plugins</h2>
 
 <p>Cardinal plugins are designed to be simple to write while still providing tons of power. Here's a sample to show what a very simple plugin might look like:</p>
 
-<div class="highlight highlight-python"><pre><span class="pl-k">class</span> <span class="pl-en">HelloWorldPlugin</span>(<span class="pl-e"><span class="pl-c1">object</span></span>):
+<div class="highlight highlight-source-python"><pre><span class="pl-k">from</span> cardinal.decorators <span class="pl-k">import</span> command, <span class="pl-c1">help</span>
+
+<span class="pl-k">class</span> <span class="pl-en">HelloWorldPlugin</span>(<span class="pl-e"><span class="pl-c1">object</span></span>):
+    <span class="pl-en">@</span><span class="pl-en">command</span>([<span class="pl-s"><span class="pl-pds">'</span>hello<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>hi<span class="pl-pds">'</span></span>])
+    <span class="pl-en">@</span><span class="pl-en"><span class="pl-c1">help</span></span>(<span class="pl-s"><span class="pl-pds">"</span>Responds to the user with a greeting.<span class="pl-pds">"</span></span>)
+    <span class="pl-en">@</span><span class="pl-en"><span class="pl-c1">help</span></span>(<span class="pl-s"><span class="pl-pds">"</span>Syntax: .hello<span class="pl-pds">"</span></span>)
     <span class="pl-k">def</span> <span class="pl-en">hello</span>(<span class="pl-smi">self</span>, <span class="pl-smi">cardinal</span>, <span class="pl-smi">user</span>, <span class="pl-smi">channel</span>, <span class="pl-smi">msg</span>):
         nick, ident, vhost <span class="pl-k">=</span> user.group(<span class="pl-c1">1</span>), user.group(<span class="pl-c1">2</span>), user.group(<span class="pl-c1">3</span>)
         cardinal.sendMsg(channel, <span class="pl-s"><span class="pl-pds">"</span>Hello <span class="pl-c1">%s</span>!<span class="pl-pds">"</span></span> <span class="pl-k">%</span> nick)
-    hello.commands <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">'</span>hello<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>hi<span class="pl-pds">'</span></span>]
-    hello.help <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">"</span>Responds to the user with a greeting.<span class="pl-pds">"</span></span>,
-                  <span class="pl-s"><span class="pl-pds">"</span>Syntax: .hello [user to greet]<span class="pl-pds">"</span></span>]
 
 <span class="pl-k">def</span> <span class="pl-en">setup</span>():
     <span class="pl-k">return</span> HelloWorldPlugin()</pre></div>
@@ -91,7 +106,9 @@
 <h2>
 <a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributing</h2>
 
-<p>If you have found a bug, feel free to submit a patch or simply open an issue on this repository and I will get to it as soon as possible. Be sure to add your name to the CONTRIBUTORS file in a separate commit on the same branch as your modification so that I can give credit where credit is due.</p>
+<p>If you have found a bug, feel free to submit a patch or simply open an issue on this repository.</p>
+
+<p>If you're submitting a pull request, you may add your name to the CONTRIBUTORS file with a separate commit in the same branch as your modification.</p>
 
 <p>Cardinal is a public, open-source project, licensed under the MIT License. Anyone may contribute.</p>
         </section>
